@@ -1,0 +1,23 @@
+[project]
+name = "rag-answer-grounding"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Clément Brun",email = "clement.brun@mwm.io"}
+]
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "google-api-core (>=2.24.2,<3.0.0)",
+    "chromadb (>=1.0.8,<2.0.0)",
+    "ipython (>=9.2.0,<10.0.0)",
+    "google-genai (==1.7.0)",
+    "protobuf (==3.20.3)",
+    "bs4 (>=0.0.2,<0.0.3)",
+    "google-cloud-storage (>=3.1.0,<4.0.0)",
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
