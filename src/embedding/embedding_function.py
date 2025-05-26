@@ -6,6 +6,10 @@ from typing import List
 
 from src.clients.gemini_client import client
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 class EmbeddingFunction:
     """
     Wrapper class for generating text embeddings using the Gemini embedding model.
@@ -31,16 +35,22 @@ class EmbeddingFunction:
 
     @retry.Retry(predicate=lambda e: isinstance(e, errors.APIError) and getattr(e, 'code', None) in {429, 503}) #function that identifies error codes
     def __call__(self, input: List[str]) -> List[List[float]]:
+        embeddings = []
+        batch_size = 100
+        embedding_task = "retrieval_document" if self.document_mode else "retrieval_query"
 
-        embeddings=[]
-        batch_size=100
         for i in range(0, len(input), batch_size):
-            embedding_task = "retrieval_document" if self.document_mode else "retrieval_query"
-            response = self.client.models.embed_content(
-                model="models/embedding-001",
-                contents=input,
-                config=types.EmbedContentConfig(task_type=embedding_task),
-            )
-            embeddings.extend([e.values for e in response.embeddings])
+            batch = input[i:i + batch_size]
+            try:
+                response = self.client.models.embed_content(
+                    model="models/embedding-001",
+                    contents=batch,
+                    config=types.EmbedContentConfig(task_type=embedding_task),
+                )
+                embeddings.extend([e.values for e in response.embeddings])
+            except Exception as e:
+                logger.warning(f"Embedding failed on batch {i}-{i + len(batch)}: {e}")
+
         return embeddings
+
 
