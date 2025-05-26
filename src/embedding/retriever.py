@@ -5,8 +5,8 @@ from src.db.collections import get_query_collection
 def get_best_matches(
     query: str,
     collection_name: str,
-    threshold: float = 0.65,
-    max_results: int = 20
+    threshold: float = 0.60,
+    max_results: int = 40
 ) -> List[str]:
     """
     Query ChromaDB using a similarity search and filter results above a threshold.
