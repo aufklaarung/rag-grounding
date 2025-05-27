@@ -1,13 +1,17 @@
 # src/embedding/retriever.py
-from typing import List
+from typing import List, Tuple
 from src.db.collections import get_query_collection
+
+from logging import getLogger
+
+logger = getLogger(__name__)
 
 def get_best_matches(
     query: str,
     collection_name: str,
     threshold: float = 0.60,
-    max_results: int = 40
-) -> List[str]:
+    max_results: int = 100
+) -> Tuple[List[str], List[str]]:
     """
     Query ChromaDB using a similarity search and filter results above a threshold.
     """
@@ -16,7 +20,13 @@ def get_best_matches(
     result = db.query(query_texts=[query], n_results=max_results)
     documents = result["documents"][0]
     scores = result["distances"][0]
+    metadatas = result.get("metadatas", [[]])[0]  # may be empty list if missing
 
-    filtered = [doc for doc, score in zip(documents, scores) if score <= (1-threshold)]
-    print(f"🔍 Retrieved {len(filtered)} matches (threshold={threshold})")
-    return filtered
+    filtered_docs = []
+    filtered_meta = []
+    for doc, score, meta in zip(documents, scores, metadatas):
+        if score <= (1 - threshold):
+            filtered_docs.append(doc)
+            filtered_meta.append(meta)
+    logger.info(f"🔍 Retrieved {len(filtered_docs)} matches (threshold={threshold})")
+    return filtered_docs, filtered_meta
