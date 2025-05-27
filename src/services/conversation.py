@@ -20,11 +20,14 @@ class ConversationService:
 
     def ask(self, question: str) -> str:
         enriched_query = self.enrich_query(question)
-        best_passages = get_best_matches(enriched_query, self.collection_name, max_results=20)
+        best_passages, metadatas = get_best_matches(enriched_query, self.collection_name)
         if not best_passages:
             return "Je n’ai trouvé aucun passage pertinent pour répondre à cette question."
-        prompt = build_prompt(question, best_passages, self.history)
-
+        passages_with_metadata = [
+            {"text": passage, "metadata": meta}
+            for passage, meta in zip(best_passages, metadatas)
+        ]
+        prompt = build_prompt(question, passages_with_metadata, self.history)
         response = get_model_response(prompt)
         self.history.append((question, response))
         return response
