@@ -40,10 +40,11 @@ class EmbeddingFunction:
         embedding_task = "retrieval_document" if self.document_mode else "retrieval_query"
 
         for i in range(0, len(input), batch_size):
+            batch = input[i:i + batch_size]
             try:
                 response = self.client.models.embed_content(
                     model="models/embedding-001",
-                    contents=input[i:i + batch_size],
+                    contents=batch,
                     config=types.EmbedContentConfig(task_type=embedding_task),
                 )
                 embeddings.extend([e.values for e in response.embeddings])
