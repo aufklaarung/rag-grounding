@@ -28,7 +28,18 @@ if __name__ == "__main__":
           "https://en.wikipedia.org/wiki/Newton%27s_law_of_universal_gravitation",
           "https://en.wikipedia.org/wiki/Philosophi%C3%A6_Naturalis_Principia_Mathematica",
           "https://en.wikipedia.org/wiki/Gravity",
-          "https://en.wikipedia.org/wiki/Albert_Einstein"
+          "https://en.wikipedia.org/wiki/Albert_Einstein",
+          "https://en.wikipedia.org/wiki/Time_dilation",
+          "https://en.wikipedia.org/wiki/Length_contraction",
+          "https://en.wikipedia.org/wiki/Mass%E2%80%93energy_equivalence",
+          "https://en.wikipedia.org/wiki/Equivalence_principle",
+          "https://en.wikipedia.org/wiki/Einstein_field_equations",
+          "https://en.wikipedia.org/wiki/Schwarzschild_metric",
+          "https://en.wikipedia.org/wiki/Gravitational_lens",
+          "https://en.wikipedia.org/wiki/Black_hole",
+          "https://en.wikipedia.org/wiki/Gravitational_wave",
+          "https://en.wikipedia.org/wiki/Lorentz_transformation",
+          "https://en.wikipedia.org/wiki/Minkowski_space"
           ]
 
     documents = []
