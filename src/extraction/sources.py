@@ -10,10 +10,14 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+_HEADERS = {
+    "User-Agent": "RagGroundingBot/1.0 (educational project; BeautifulSoup scraper)"
+}
+
 
 def extract_paragraphs_from_url(url: str, max_paragraphs: int = None) -> List[Dict]:
     """Extracts paragraphs from a Wikipedia page."""
-    response = requests.get(url)
+    response = requests.get(url, headers=_HEADERS)
     soup = BeautifulSoup(response.text, "html.parser")
     paragraphs = soup.find_all("p")
     docs = []
@@ -36,7 +40,7 @@ def extract_paragraphs_from_url(url: str, max_paragraphs: int = None) -> List[Di
 
 def extract_paragraphs_from_wikipedia(url: str, max_paragraphs: int = None) -> List[Dict]:
     """Extract paragraphs from a Wikipedia page with section titles."""
-    response = requests.get(url)
+    response = requests.get(url, headers=_HEADERS)
     soup = BeautifulSoup(response.text, "html.parser")
     content = soup.find("div", class_="mw-parser-output")
     if not content:

@@ -47,23 +47,43 @@ class EmbeddingFunction:
         """ChromaDB embedding function protocol: rebuild from saved config."""
         return EmbeddingFunction(document_mode=config.get("document_mode", True))
 
-    @retry.Retry(predicate=lambda e: isinstance(e, errors.APIError) and getattr(e, 'code', None) in {429, 503}) #function that identifies error codes
+    def _embed_batch(self, batch: List[str], embedding_task: str) -> List[List[float]]:
+        """Embed a single batch with automatic retry on 429/503."""
+        response = self.client.models.embed_content(
+            model="gemini-embedding-001",
+            contents=batch,
+            config=types.EmbedContentConfig(task_type=embedding_task),
+        )
+        return [e.values for e in response.embeddings]
+
     def __call__(self, input: List[str]) -> List[List[float]]:
+        import time
         embeddings = []
         batch_size = 100
         embedding_task = "retrieval_document" if self.document_mode else "retrieval_query"
 
         for i in range(0, len(input), batch_size):
             batch = input[i:i + batch_size]
-            try:
-                response = self.client.models.embed_content(
-                    model="models/embedding-001",
-                    contents=batch,
-                    config=types.EmbedContentConfig(task_type=embedding_task),
-                )
-                embeddings.extend([e.values for e in response.embeddings])
-            except Exception as e:
-                logger.warning(f"Embedding failed on batch {i}-{i + len(batch)}: {e}")
+            max_retries = 5
+            for attempt in range(max_retries):
+                try:
+                    result = self._embed_batch(batch, embedding_task)
+                    embeddings.extend(result)
+                    break
+                except errors.APIError as e:
+                    if getattr(e, 'code', None) in {429, 503} and attempt < max_retries - 1:
+                        wait = 2 ** attempt * 5
+                        logger.warning(f"Rate limited on batch {i}-{i + len(batch)}, retrying in {wait}s (attempt {attempt + 1}/{max_retries})")
+                        time.sleep(wait)
+                    else:
+                        logger.error(f"Embedding failed on batch {i}-{i + len(batch)}: {e}")
+                        raise
+                except Exception as e:
+                    logger.error(f"Embedding failed on batch {i}-{i + len(batch)}: {e}")
+                    raise
+
+            if i + batch_size < len(input):
+                time.sleep(1)
 
         return embeddings
 

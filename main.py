@@ -11,7 +11,6 @@ logging.basicConfig(
 )
 
 if __name__ == "__main__":
-    """
     collection_name = "relativitydb"
 
     # Extracting documents
@@ -36,10 +35,6 @@ if __name__ == "__main__":
     for url in urls:
         document = extract_documents(source='wikipedia', url=url)
         documents.extend(document)
-
-    documents = extract_documents(source='gcs', bucket_name='mwm-cb-workspace', prefix="tiktok/html/generated/original", suffix='.html')
     safe_add_to_chromadb(documents, collection_name)
-    """
 
-    keywords = ['CapCut', '剪映']  # Latin and Chinese names
 
